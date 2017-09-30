@@ -1,0 +1,6 @@
+This project implements AES cipher in CBC mode in Go Language.
+It uses the following packages:
+crypto/aes
+crypto/cipher.Block
+crypto/sha256
+
