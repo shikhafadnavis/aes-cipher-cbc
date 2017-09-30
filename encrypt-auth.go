@@ -8,22 +8,27 @@ import ("os"
 )
 
 func hmac(key []byte, message []byte) []byte{
-
+	var i int
 	//fix first case
 	if(len(key) > len(message)){
 		keyNew := sha256.Sum256(key)
-		return keyNew
+		fmt.Println(keyNew)
+
 	}
 
 	if(len(key) < len(message)){
 		numPad := len(message) - len(key)
 		padBuf := make([]byte, numPad)
+		for i = 0; i < numPad; i++{
+			padBuf[i] = 0
+		} 
 		keyNewBig := make([]byte, numPad+len(key))
-		keyNewBig = append(key[:], padBuf[:])
-		return keyNewBig
+		keyNewBig = append(key)
+		keyNewBig = append(padBuf)
+		fmt.Println(keyNewBig)
 	}
 
-	
+	return []byte("hello")
 }
 
 func main(){
@@ -57,7 +62,7 @@ func main(){
 	//Begin calculating Hash
 
 	
-
+	hmac(macKeyHex, plainBufNew)
 	 
 	 
 
