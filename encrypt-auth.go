@@ -5,6 +5,7 @@ import ("os"
 	"encoding/hex"
 	"fmt"
 	"crypto/sha256"
+	"crypto/rand"
 	"strings"
 	"math"
 	"strconv"
@@ -49,7 +50,7 @@ func hmacKey(key []byte, message []byte) []byte{
 
 	return tag
 	
-
+ 
 }
 
 
@@ -156,7 +157,7 @@ func main(){
 	// Begin calculating Hash
 
 	hmacTag := hmacKey(macKeyHex, plainBufNewHex)
-	fmt.Printf("HMAC Tag is: %x", hmacTag)
+	fmt.Println("\nHMAC Tag is:", hmacTag)
 	 
 	// Begin Encryption here
 
@@ -220,8 +221,20 @@ func main(){
 		completeMess[i+ hashedMessLen] = padding[i]
 	}
 
-	fmt.Printf("Complete Message is: %x", completeMess)
+	fmt.Printf("\nComplete Message is: %x", completeMess)
+	
+	// Generating IV
+	
+	rawIV := make([]byte, 8)
+	IV := make([]byte, hex.EncodedLen(len(rawIV)))
+	rand.Read(rawIV)
+	hex.Encode(IV, rawIV)
 
+	fmt.Println("\nInitialization Vector is:")
+	fmt.Println(IV)
+
+	
+	
 
 
 
