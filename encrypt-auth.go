@@ -11,6 +11,7 @@ import ("os"
 func hmacKey(key []byte, message []byte) []byte{
 	var i int
 	tag := make([]byte, 32)
+	keyArg := make([]byte, 100000)
 
 	//fix first case
 	if(len(key) > len(message)){
@@ -18,7 +19,10 @@ func hmacKey(key []byte, message []byte) []byte{
 		//keyNew := make([]byte, 32) 
 		keyNew := sha256.Sum256(key)
 		fmt.Printf("\nModified HMAC key is: %x ",keyNew)
-		tag = hmac1(keyNew, message)
+		for i = 0; i < len(keyNew); i++{
+			keyArg[i] = keyNew[i]
+		} 
+		tag = hmac(keyArg[0:len(keyNew)], message)
 
 	}
 
@@ -38,7 +42,7 @@ func hmacKey(key []byte, message []byte) []byte{
 		} 
 		fmt.Println("\nModified HMAC Key is: ")
 		fmt.Printf("%s",keyNew)
-		tag = hmac2(keyNew, message)
+		tag = hmac(keyNew, message)
 	}
 
 	return tag
@@ -47,7 +51,7 @@ func hmacKey(key []byte, message []byte) []byte{
 }
 
 
-func hmac1(hmacKey [32]byte, message []byte) []byte{
+func hmac(hmacKey []byte, message []byte) []byte{
 
 	var i int
 	finalTag := make([]byte, 32)
@@ -103,7 +107,6 @@ func hmac1(hmacKey [32]byte, message []byte) []byte{
 	}
 
 	finalMessSha := sha256.Sum256(finalMess)
-	fmt.Printf("The HMAC tag is: %x", finalMessSha)
 
 	for i = 0; i < len(finalMessSha); i++{
 		finalTag[i] = finalMessSha[i]
@@ -111,28 +114,6 @@ func hmac1(hmacKey [32]byte, message []byte) []byte{
         return finalTag
 	
 	
-
-}
-
-func hmac2(hmacKey []byte, message []byte) []byte{
-
-        var i int
-        keyLen := len(hmacKey)
-        ipad := strings.Repeat("36", keyLen)
-        ipadHex, err := hex.DecodeString(ipad)
-        if err != nil{
-                panic(err)
-        }
-        fmt.Println("\nValue of ipad is: ")
-        fmt.Printf("%x",ipadHex)
-
-        ipadKey := make([]byte, keyLen)
-        for i = 0; i < keyLen; i++{
-                ipadKey[i] = ipadHex[i] ^ hmacKey[i]
-        }
-        fmt.Printf("ipadkey is: %x", ipadKey)
-        return []byte("Hello")
-
 
 }
 
