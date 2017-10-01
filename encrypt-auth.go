@@ -6,6 +6,7 @@ import ("os"
 	"fmt"
 	"crypto/sha256"
 	"crypto/rand"
+	"crypto/aes"
 	"strings"
 	"math"
 	"strconv"
@@ -128,8 +129,12 @@ func main(){
 	mainKey := os.Args[1]
 	macKey := make([]byte, 16)
         copy(macKey[:],mainKey[16:32])
+	encKey := make([]byte, 16)
+	copy(encKey[:],mainKey[0:16])
 	macKeyHex := make([]byte, 32)
 	hex.Encode(macKeyHex, macKey)
+	encKeyHex := make([]byte, 32)
+	hex.Encode(encKeyHex, encKey)
         fmt.Println("\nMac key is: ")
 	fmt.Println(macKey)
 	fmt.Printf("\n Hex Mac Key is: %s",macKeyHex) 
@@ -229,13 +234,39 @@ func main(){
 	IV := make([]byte, hex.EncodedLen(len(rawIV)))
 	rand.Read(rawIV)
 	hex.Encode(IV, rawIV)
+	xorBlock := IV
+	finalBlock := make([]byte, 16)
+	cipherBlock := make([]byte, 16)
+	fo, err := os.OpenFile(os.Args[3], os.O_APPEND, 0666)
+	if err != nil{
+		panic(err)
+	}
+
+	cipherEncrypt, err := aes.NewCipher(encKeyHex)
+	if err != nil{
+		panic (err)
+	}
 
 	fmt.Println("\nInitialization Vector is:")
 	fmt.Println(IV)
+	fmt.Printf("\nTotal length is %d", len(completeMess))
+	rounds := len(completeMess)/16
+	fmt.Printf("\n %d number of rounds", rounds)
+	var index int = 0
+	for rounds > 0{
+		
+		messBlock := completeMess[index:index+16]
+		for i =0; i < len(messBlock); i++{
+			finalBlock[i] = messBlock[i] ^ xorBlock[i] 
+		} 
+		cipherEncrypt.Encrypt(cipherBlock, finalBlock)
+		fmt.Printf("\n Cipherblock: %x", cipherBlock)
+		fo.Write(cipherBlock)
+		xorBlock = cipherBlock
 
-	
-	
-
+		index += 16
+		rounds -= 1
+	}
 
 
 }
