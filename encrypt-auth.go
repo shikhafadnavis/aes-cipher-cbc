@@ -6,6 +6,8 @@ import ("os"
 	"fmt"
 	"crypto/sha256"
 	"strings"
+	"math"
+	"strconv"
 )
 
 func hmacKey(key []byte, message []byte) []byte{
@@ -151,23 +153,74 @@ func main(){
 	hex.Encode(plainBufNewHex, plainBufNew)
 	fmt.Printf("\nHex Plaintext is: %s",plainBufNewHex)
 
-	//Begin calculating Hash
+	// Begin calculating Hash
 
-	
 	hmacTag := hmacKey(macKeyHex, plainBufNewHex)
 	fmt.Printf("HMAC Tag is: %x", hmacTag)
 	 
-	 
+	// Begin Encryption here
 
+	hashedMessLen := len(hmacTag) + len(plainBufNewHex)
+	hashedMess := make([]byte, hashedMessLen)
+	for i = 0; i < len(plainBufNewHex); i++{
+		hashedMess[i] = plainBufNewHex[i]
+	}  		 
 
+	for i = 0 ; i < len(hmacTag); i++{
+		hashedMess[i+len(plainBufNewHex)] = hmacTag[i]
+	}
 
+	extraLen := hashedMessLen % 16
+	if extraLen < 0{
+		extraLen = extraLen + 16
+	}
+	extraLenFinal := extraLen
+	
+	padding := make([]byte, 16-extraLen)
+	
+	if extraLenFinal != 0{
 
+		padByte := int(math.Pow(float64(16-extraLen), 2))
+		fmt.Println("\n")
+		fmt.Println("\n PadByte is: ")
+		fmt.Println(padByte)
+		padByteStr := strconv.Itoa(padByte)
+		fmt.Printf("PadByte String is %s: ", padByteStr)
+		padByteBuf := strings.Repeat(padByteStr, 16-extraLen)
+		padding, err = hex.DecodeString(padByteBuf)
+		if err!=nil{
+			panic(err)
+		}
 
+		fmt.Printf("Padding string is: %x",padding)
+	}
 
+	if extraLenFinal == 0{
+		padByte := 10
+                fmt.Println("\n")
+                fmt.Println("\n PadByte is: ")
+                fmt.Println(padByte)
+                padByteStr := strconv.Itoa(padByte)
+                fmt.Printf("PadByte String is %s: ", padByteStr)
+                padByteBuf := strings.Repeat(padByteStr, 16)
+                padding, err = hex.DecodeString(padByteBuf)
+                if err!=nil{
+                        panic(err)
+                }
 
+                fmt.Printf("Padding string is: %x",padding)
 
+	}
 
+	completeMess := make([]byte, hashedMessLen+len(padding))
+	for i = 0; i < hashedMessLen; i++{
+		completeMess[i] = hashedMess[i]
+	} 
+	for i = 0; i < len(padding); i++{
+		completeMess[i+ hashedMessLen] = padding[i]
+	}
 
+	fmt.Printf("Complete Message is: %x", completeMess)
 
 
 
