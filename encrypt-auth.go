@@ -122,16 +122,73 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 }
 
-func decryptCipher(message []byte, keyE []byte, keyM []byte){
+func decryptCipher(message []byte, keyD []byte, keyM []byte){
 
-
+	fmt.Println("\n Length of message",len(message))
+	var i int
 	initVector := message[0:16]
 	realMessage := message[16:len(message)]
-
+	
+	fmt.Println("\n")
 	fmt.Println(len(initVector))
 	fmt.Println(len(realMessage))
+	decryptedMess := make([]byte, len(realMessage))
 
+	rounds := len(realMessage)/16
+	currCipherBlock := make([]byte, 16)
+	prevCipherBlock := make([]byte, 16)
+	currResultBlock := make([]byte, 16)
+	xorBlock := make([]byte, 16)
+	index := len(realMessage)
 
+	cipherDecrypt, err := aes.NewCipher(keyD)
+        if err != nil{
+                panic (err)
+        }
+
+	for rounds > 0{
+		currCipherBlock = realMessage[index-16:index]
+		if rounds == 1{
+			prevCipherBlock = initVector
+		}else{
+			prevCipherBlock = realMessage[index-32:index-16]
+		}
+
+		fmt.Println("\n Current Cipher Block is: %x", currCipherBlock)
+		fmt.Println("\n Previous Cipher Block is: %x", prevCipherBlock)
+		cipherDecrypt.Decrypt(currResultBlock, currCipherBlock)
+		for i = 0; i < len(currResultBlock); i++{
+			xorBlock[i] = currResultBlock[i] ^ prevCipherBlock[i]
+		}
+		j := 0
+		for i = index-16; i < index; i++{
+			decryptedMess[i] = xorBlock[j]
+			j++
+		}
+		index -= 16
+		rounds -=1
+	}	
+
+	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+	padCheck := true
+	lastByte := int(decryptedMess[len(decryptedMess)-1])
+	for i = len(decryptedMess)-1; i >= len(decryptedMess)-lastByte; i--{
+		if int(decryptedMess[i]) != lastByte{
+			fmt.Println("\n INVALID PADDING")
+			padCheck = false
+			break
+		}
+	}
+	decryptedMessNoPad := make([]byte, len(decryptedMess)-lastByte)
+	if padCheck == true{
+		decryptedMessNoPad = decryptedMess[0: len(decryptedMess)-lastByte]
+	}
+
+	fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
+	
+	//Stripping HMAC Tag
+
+	stripTag := make([]byte, 32)
 
 }
 
@@ -299,7 +356,15 @@ func main(){
 	}
 
 	fi.Read(rawCiphertext)
+	for i = 0; i < len(rawCiphertext); i++{
+		if rawCiphertext[i] == 0{
+			break;
+		}
+	}
+	rawCiphertextLen := i
+	rawCiphertextNew := make([]byte,rawCiphertextLen)
+	rawCiphertextNew = rawCiphertext[0:rawCiphertextLen]
 
-	decryptCipher(rawCiphertext, encKeyHex, macKeyHex)
+	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex)
 
 }
