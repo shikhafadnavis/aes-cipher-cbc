@@ -10,6 +10,7 @@ import ("os"
 	"strings"
 	"math"
 	"strconv"
+	"io/ioutil"
 )
 
 func hmacKey(key []byte, message []byte) []byte{
@@ -237,10 +238,6 @@ func main(){
 	xorBlock := IV
 	finalBlock := make([]byte, 16)
 	cipherBlock := make([]byte, 16)
-	fo, err := os.OpenFile(os.Args[3], os.O_APPEND, 0666)
-	if err != nil{
-		panic(err)
-	}
 
 	cipherEncrypt, err := aes.NewCipher(encKeyHex)
 	if err != nil{
@@ -252,6 +249,7 @@ func main(){
 	fmt.Printf("\nTotal length is %d", len(completeMess))
 	rounds := len(completeMess)/16
 	fmt.Printf("\n %d number of rounds", rounds)
+	IVwithCipher := make([]byte, len(completeMess)+len(IV))
 	var index int = 0
 	for rounds > 0{
 		
@@ -261,12 +259,17 @@ func main(){
 		} 
 		cipherEncrypt.Encrypt(cipherBlock, finalBlock)
 		fmt.Printf("\n Cipherblock: %x", cipherBlock)
-		fo.Write(cipherBlock)
+	
+		for i = 0; i < len(cipherBlock); i++{
+			IVwithCipher[index + i] = cipherBlock[i]
+		}		
 		xorBlock = cipherBlock
 
 		index += 16
 		rounds -= 1
 	}
+
+	ioutil.WriteFile(os.Args[3], IVwithCipher, 0666)
 
 
 }
