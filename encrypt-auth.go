@@ -122,6 +122,19 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 }
 
+func decryptCipher(message []byte, keyE []byte, keyM []byte){
+
+
+	initVector := message[0:16]
+	realMessage := message[16:len(message)]
+
+	fmt.Println(len(initVector))
+	fmt.Println(len(realMessage))
+
+
+
+}
+
 
 func main(){
 	
@@ -250,6 +263,9 @@ func main(){
 	rounds := len(completeMess)/16
 	fmt.Printf("\n %d number of rounds", rounds)
 	IVwithCipher := make([]byte, len(completeMess)+len(IV))
+	for i = 0; i < len(IV);  i++{
+		IVwithCipher[i] = IV[i]
+	}
 	var index int = 0
 	for rounds > 0{
 		
@@ -261,7 +277,7 @@ func main(){
 		fmt.Printf("\n Cipherblock: %x", cipherBlock)
 	
 		for i = 0; i < len(cipherBlock); i++{
-			IVwithCipher[index + i] = cipherBlock[i]
+			IVwithCipher[16 + index + i] = cipherBlock[i]
 		}		
 		xorBlock = cipherBlock
 
@@ -271,5 +287,19 @@ func main(){
 
 	ioutil.WriteFile(os.Args[3], IVwithCipher, 0666)
 
+
+
+	///////////////////////////////////////////////////////////
+
+	// Prepare for Decrypt function
+	rawCiphertext := make([]byte, 100000)
+	fi, err = os.Open("ciphertext.txt")
+	if err != nil{
+		panic(err)
+	}
+
+	fi.Read(rawCiphertext)
+
+	decryptCipher(rawCiphertext, encKeyHex, macKeyHex)
 
 }
