@@ -8,8 +8,7 @@ import ("os"
 	"crypto/rand"
 	"crypto/aes"
 	"strings"
-	"math"
-	"strconv"
+//	"strconv"
 	"io/ioutil"
 )
 
@@ -171,28 +170,48 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 
 	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
-	lastByte := int(decryptedMess[len(decryptedMess)-1])
-	for i = len(decryptedMess)-1; i >= len(decryptedMess)-lastByte; i--{
-		if int(decryptedMess[i]) != lastByte{
+	lastByte := decryptedMess[len(decryptedMess)-1]
+
+	fmt.Println("\n Last Byte is: ", lastByte)
+	for i = len(decryptedMess)-1; i >= len(decryptedMess)-int(lastByte); i--{
+		if (decryptedMess[i]) != (lastByte){
 			fmt.Println("\n INVALID PADDING")
 			padCheck = false
 			break
 		}
 	}
-	decryptedMessNoPad := make([]byte, len(decryptedMess)-lastByte)
+	decryptedMessNoPad := make([]byte, len(decryptedMess)-int(lastByte))
 	if padCheck == true{
-		decryptedMessNoPad = decryptedMess[0: len(decryptedMess)-lastByte]
-	}
+		decryptedMessNoPad = decryptedMess[0: len(decryptedMess)-int(lastByte)]
+	
 
-	fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
-	decryptedMessNoPadLen := len(decryptedMessNoPad)
-	//Stripping HMAC Tag
+		fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
+		decryptedMessNoPadLen := len(decryptedMessNoPad)
+		//Stripping HMAC Tag
 
-	stripMess := decryptedMessNoPad[0:decryptedMessNoPadLen-32]
-	tag := decryptedMessNoPad[decryptedMessNoPadLen-32:decryptedMessNoPadLen]
+		stripMess := decryptedMessNoPad[0:decryptedMessNoPadLen-32]
+		tag := decryptedMessNoPad[decryptedMessNoPadLen-32:decryptedMessNoPadLen]
 
-	fmt.Printf("\n Stripped Message: %x", stripMess)
-	fmt.Printf("\n Stripped Tag is %x", tag)	
+		fmt.Printf("\n Stripped Message: %x", stripMess)
+		fmt.Printf("\n Stripped Tag is %x", tag)
+
+		// Verify Tag
+		tagCheck := true
+		verifiedTag := hmacKey(keyM, stripMess)
+		for i = 0; i < len(verifiedTag); i++{
+			if verifiedTag[i] != tag[i]{
+				fmt.Println("\n INVALID TAG")
+				tagCheck = false
+				break
+			}
+		}
+
+		if tagCheck == true{
+			//output to file
+		}
+
+		
+	}	
 
 }
 
@@ -261,26 +280,33 @@ func main(){
 	
 	if extraLenFinal != 0{
 
-		padByte := int(math.Pow(float64(16-extraLen), 2))
+		padByte := 16-extraLen
 		fmt.Println("\n")
 		fmt.Println("\n PadByte is: ")
 		fmt.Println(padByte)
-		padByteStr := strconv.Itoa(padByte)
+		for i = 0; i < padByte; i++{
+			padding[i] = byte(padByte)
+		}
+		/*padByteStr := strconv.Itoa(padByte)
 		fmt.Printf("PadByte String is %s: ", padByteStr)
 		padByteBuf := strings.Repeat(padByteStr, 16-extraLen)
 		padding, err = hex.DecodeString(padByteBuf)
 		if err!=nil{
 			panic(err)
-		}
+		}*/
 
 		fmt.Printf("Padding string is: %x",padding)
 	}
 
 	if extraLenFinal == 0{
-		padByte := 10
+		padByte := 16
                 fmt.Println("\n")
                 fmt.Println("\n PadByte is: ")
                 fmt.Println(padByte)
+		for i = 0; i < padByte; i++{
+                        padding[i] = byte(padByte)
+                }
+		/*
                 padByteStr := strconv.Itoa(padByte)
                 fmt.Printf("PadByte String is %s: ", padByteStr)
                 padByteBuf := strings.Repeat(padByteStr, 16)
@@ -288,7 +314,7 @@ func main(){
                 if err!=nil{
                         panic(err)
                 }
-
+		*/
                 fmt.Printf("Padding string is: %x",padding)
 
 	}
