@@ -185,10 +185,14 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 	}
 
 	fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
-	
+	decryptedMessNoPadLen := len(decryptedMessNoPad)
 	//Stripping HMAC Tag
 
-	stripTag := make([]byte, 32)
+	stripMess := decryptedMessNoPad[0:decryptedMessNoPadLen-32]
+	tag := decryptedMessNoPad[decryptedMessNoPadLen-32:decryptedMessNoPadLen]
+
+	fmt.Printf("\n Stripped Message: %x", stripMess)
+	fmt.Printf("\n Stripped Tag is %x", tag)	
 
 }
 
