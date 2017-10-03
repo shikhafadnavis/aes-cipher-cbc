@@ -1,6 +1,22 @@
-This project implements AES cipher in CBC mode in Go Language.
-It uses the following packages:
+This project implements AES-128 cipher in CBC mode in Go Language.
+
+It uses the following crypto packages:
 crypto/aes
-crypto/cipher.Block
+crypto/rand
 crypto/sha256
+
+The command line usahe is as follows:
+
+
+./encrypt-auth <mode> -k <32-byte key in hexadecimal> -i <input filename> -o <output filename>
+
+Here mode can be set to: "encrypt" or "decrypt"
+
+
+==============================================================================================================
+
+Usage of testing harness script:
+
+./testing_harness ./encrypt-auth <plaintext filename> <ciphertext filename> <recovered plaintext filename>
+
 

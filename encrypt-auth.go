@@ -1,3 +1,16 @@
+/*
+Author :  Shikha Fadnavis
+Date   :  10/02/2017
+
+Program:  AES-128 in CBC mode using raw AES package
+
+** Command Line usage in the Readme
+
+*/
+
+
+
+
 package main
 
 import ("os"
@@ -19,10 +32,10 @@ func hmacKey(key []byte, message []byte) []byte{
 
 	//fix first case
 	if(len(key) > len(message)){
-		fmt.Println("\nKey is longer")
+		//fmt.Println("\nKey is longer")
 		//keyNew := make([]byte, 32) 
 		keyNew := sha256.Sum256(key)
-		fmt.Printf("\nModified HMAC key is: %x ",keyNew)
+		//fmt.Printf("\nModified HMAC key is: %x ",keyNew)
 		for i = 0; i < len(keyNew); i++{
 			keyArg[i] = keyNew[i]
 		} 
@@ -31,7 +44,7 @@ func hmacKey(key []byte, message []byte) []byte{
 	}
 
 	if(len(key) < len(message)){
-		fmt.Println("\nMessage is longer")
+		//fmt.Println("\nMessage is longer")
 		numPad := len(message) - len(key)
 		padBuf := make([]byte, numPad)
 		for i = 0; i < numPad; i++{
@@ -44,8 +57,8 @@ func hmacKey(key []byte, message []byte) []byte{
 		for i = 0; i < numPad; i++{
 			keyNew[i+len(key)] = padBuf[i]
 		} 
-		fmt.Println("\nModified HMAC Key is: ")
-		fmt.Printf("%s",keyNew)
+		//fmt.Println("\nModified HMAC Key is: ")
+		//fmt.Printf("%s",keyNew)
 		tag = hmac(keyNew, message)
 	}
 
@@ -71,22 +84,22 @@ func hmac(hmacKey []byte, message []byte) []byte{
                 panic(err)
         }
 
-        fmt.Println("\nValue of ipad is: ")
-        fmt.Printf("%x",ipadHex)
-	fmt.Println("\nValue of opad is: ")
-        fmt.Printf("%x",opadHex)
+        //fmt.Println("\nValue of ipad is: ")
+        //fmt.Printf("%x",ipadHex)
+	//fmt.Println("\nValue of opad is: ")
+        //fmt.Printf("%x",opadHex)
 
         ipadKey := make([]byte, keyLen)
         for i = 0; i < keyLen; i++{
                 ipadKey[i] = ipadHex[i] ^ hmacKey[i]
         }
-        fmt.Printf("ipadkey is: %x", ipadKey)
+        //fmt.Printf("ipadkey is: %x", ipadKey)
 
 	opadKey := make([]byte, keyLen)
         for i = 0; i < keyLen; i++{
                 opadKey[i] = opadHex[i] ^ hmacKey[i]
         }
-        fmt.Printf("opadkey is: %x", opadKey)
+        //fmt.Printf("opadkey is: %x", opadKey)
 
 	//Concatenating message to ipad
 	totalLen := keyLen + len(message)
@@ -100,7 +113,7 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 	//Concatenating opad with previous result
 	concatMessSha := sha256.Sum256(concatMess)
-	fmt.Printf("\nConcatMessSha is: %x", concatMessSha)
+	//fmt.Printf("\nConcatMessSha is: %x", concatMessSha)
 	finalLen := len(opadKey) + len(concatMessSha)
 	finalMess := make([]byte, finalLen)
 	for i = 0; i < len(opadKey); i++{
@@ -123,14 +136,14 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 
-	fmt.Println("\n Length of message",len(message))
+	//fmt.Println("\n Length of message",len(message))
 	var i int
 	initVector := message[0:16]
 	realMessage := message[16:len(message)]
 	
-	fmt.Println("\n")
-	fmt.Println(len(initVector))
-	fmt.Println(len(realMessage))
+	//fmt.Println("\n")
+	//fmt.Println(len(initVector))
+	//fmt.Println(len(realMessage))
 	decryptedMess := make([]byte, len(realMessage))
 
 	rounds := len(realMessage)/16
@@ -153,8 +166,6 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 			prevCipherBlock = realMessage[index-32:index-16]
 		}
 
-		fmt.Println("\n Current Cipher Block is: %x", currCipherBlock)
-		fmt.Println("\n Previous Cipher Block is: %x", prevCipherBlock)
 		cipherDecrypt.Decrypt(currResultBlock, currCipherBlock)
 		for i = 0; i < len(currResultBlock); i++{
 			xorBlock[i] = currResultBlock[i] ^ prevCipherBlock[i]
@@ -168,11 +179,11 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 		rounds -=1
 	}	
 
-	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+	//fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
 
-	fmt.Println("\n Last Byte is: ", lastByte)
+	//fmt.Println("\n Last Byte is: ", lastByte)
 	for i = len(decryptedMess)-1; i >= len(decryptedMess)-int(lastByte); i--{
 		if (decryptedMess[i]) != (lastByte){
 			fmt.Println("\n INVALID PADDING")
@@ -185,15 +196,15 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 		decryptedMessNoPad = decryptedMess[0: len(decryptedMess)-int(lastByte)]
 	
 
-		fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
+		//fmt.Printf("\nMessage without Pad is: %x\n", decryptedMessNoPad)
 		decryptedMessNoPadLen := len(decryptedMessNoPad)
 		//Stripping HMAC Tag
 
 		stripMess := decryptedMessNoPad[0:decryptedMessNoPadLen-32]
 		tag := decryptedMessNoPad[decryptedMessNoPadLen-32:decryptedMessNoPadLen]
 
-		fmt.Printf("\n Stripped Message: %x", stripMess)
-		fmt.Printf("\n Stripped Tag is %x", tag)
+		//fmt.Printf("\n Stripped Message: %x", stripMess)
+		//fmt.Printf("\n Stripped Tag is %x", tag)
 
 		// Verify Tag
 		tagCheck := true
@@ -227,7 +238,7 @@ func main(){
 	var mainKey string
 	var inputFile string
 	var outputFile string
-	//plainBuf := make([]byte, 100000)
+
 	
 	arguments := os.Args
 	for i = 0; i < len(arguments); i++{
@@ -252,30 +263,12 @@ func main(){
 	hex.Encode(macKeyHex, macKey)
 	encKeyHex := make([]byte, 32)
 	hex.Encode(encKeyHex, encKey)
-        fmt.Println("\nMac key is: ")
-	fmt.Println(macKey)
-	fmt.Printf("\n Hex Mac Key is: %s",macKeyHex)
+        //fmt.Println("\nMac key is: ")
+	//fmt.Println(macKey)
+	//fmt.Printf("\n Hex Mac Key is: %s",macKeyHex)
 
 	if os.Args[1] == "encrypt"{ 
 	
-	/*
-	fi, err := os.Open(inputFile)
-	if err != nil{
-		panic(err)
-	}
-	fi.Read(plainBuf)
-	//fmt.Println(len(plainBufNew))
-	for i = 0; i < len(plainBuf); i++{
-		if plainBuf[i] == 10{
-			break
-		}
-	}
-	plainBufLen := i
-	plainBufNew := make([]byte, plainBufLen)
-	plainBufNew = plainBuf[0:plainBufLen]
-	fmt.Println("\nPlaintext is: ")
-	fmt.Println(plainBufNew)
-	*/
 	plainBufNew, err := ioutil.ReadFile(inputFile)
 	if err != nil{
                 panic(err)
@@ -283,12 +276,12 @@ func main(){
 
 	plainBufNewHex := make([]byte, hex.EncodedLen(len(plainBufNew)))
 	hex.Encode(plainBufNewHex, plainBufNew)
-	fmt.Printf("\nHex Plaintext is: %s",plainBufNewHex)
+	//fmt.Printf("\nHex Plaintext is: %s",plainBufNewHex)
 
 	// Begin calculating Hash
 
 	hmacTag := hmacKey(macKeyHex, plainBufNewHex)
-	fmt.Println("\nHMAC Tag is:", hmacTag)
+	//fmt.Println("\nHMAC Tag is:", hmacTag)
 	 
 	// Begin Encryption here
 
@@ -313,41 +306,28 @@ func main(){
 	if extraLenFinal != 0{
 
 		padByte := 16-extraLen
-		fmt.Println("\n")
-		fmt.Println("\n PadByte is: ")
-		fmt.Println(padByte)
+		//fmt.Println("\n")
+		//fmt.Println("\n PadByte is: ")
+		//fmt.Println(padByte)
 		for i = 0; i < padByte; i++{
 			padding[i] = byte(padByte)
 		}
-		/*padByteStr := strconv.Itoa(padByte)
-		fmt.Printf("PadByte String is %s: ", padByteStr)
-		padByteBuf := strings.Repeat(padByteStr, 16-extraLen)
-		padding, err = hex.DecodeString(padByteBuf)
-		if err!=nil{
-			panic(err)
-		}*/
+		
+		
 
-		fmt.Printf("Padding string is: %x",padding)
+		//fmt.Printf("Padding string is: %x",padding)
 	}
 
 	if extraLenFinal == 0{
 		padByte := 16
-                fmt.Println("\n")
-                fmt.Println("\n PadByte is: ")
-                fmt.Println(padByte)
+                //fmt.Println("\n")
+                //fmt.Println("\n PadByte is: ")
+                //fmt.Println(padByte)
 		for i = 0; i < padByte; i++{
                         padding[i] = byte(padByte)
                 }
-		/*
-                padByteStr := strconv.Itoa(padByte)
-                fmt.Printf("PadByte String is %s: ", padByteStr)
-                padByteBuf := strings.Repeat(padByteStr, 16)
-                padding, err = hex.DecodeString(padByteBuf)
-                if err!=nil{
-                        panic(err)
-                }
-		*/
-                fmt.Printf("Padding string is: %x",padding)
+		
+                //fmt.Printf("Padding string is: %x",padding)
 
 	}
 
@@ -359,7 +339,7 @@ func main(){
 		completeMess[i+ hashedMessLen] = padding[i]
 	}
 
-	fmt.Printf("\nComplete Message is: %x", completeMess)
+	//fmt.Printf("\nComplete Message is: %x", completeMess)
 	
 	// Generating IV
 	
@@ -376,11 +356,11 @@ func main(){
 		panic (err)
 	}
 
-	fmt.Println("\nInitialization Vector is:")
-	fmt.Println(IV)
-	fmt.Printf("\nTotal length is %d", len(completeMess))
+	//fmt.Println("\nInitialization Vector is:")
+	//fmt.Println(IV)
+	//fmt.Printf("\nTotal length is %d", len(completeMess))
 	rounds := len(completeMess)/16
-	fmt.Printf("\n %d number of rounds", rounds)
+	//fmt.Printf("\n %d number of rounds", rounds)
 	IVwithCipher := make([]byte, len(completeMess)+len(IV))
 	for i = 0; i < len(IV);  i++{
 		IVwithCipher[i] = IV[i]
@@ -393,7 +373,7 @@ func main(){
 			finalBlock[i] = messBlock[i] ^ xorBlock[i] 
 		} 
 		cipherEncrypt.Encrypt(cipherBlock, finalBlock)
-		fmt.Printf("\n Cipherblock: %x", cipherBlock)
+		//fmt.Printf("\n Cipherblock: %x", cipherBlock)
 	
 		for i = 0; i < len(cipherBlock); i++{
 			IVwithCipher[16 + index + i] = cipherBlock[i]
@@ -404,8 +384,8 @@ func main(){
 		rounds -= 1
 	}
 
-	fmt.Println("\nIV with Cipher is: ")
-	fmt.Println(IVwithCipher)
+	//fmt.Println("\nIV with Cipher is: ")
+	//fmt.Println(IVwithCipher)
 
 	ioutil.WriteFile(outputFile, IVwithCipher, 0666)
 	}
@@ -422,24 +402,9 @@ func main(){
                 panic(err)
         }
  
-	/*rawCiphertext := make([]byte, 100000)
-	fi, err := os.Open(inputFile)
-	if err != nil{
-		panic(err)
-	}
 
-	fi.Read(rawCiphertext)
-	for i = 0; i < len(rawCiphertext); i++{
-		if rawCiphertext[i] == 0{
-			break;
-		}
-	}
-	rawCiphertextLen := i
-	rawCiphertextNew := make([]byte,rawCiphertextLen)
-	rawCiphertextNew = rawCiphertext[0:rawCiphertextLen]
-	*/
-	fmt.Println("\n Input Cipher text is: ")
-	fmt.Println(rawCiphertextNew)
+	//fmt.Println("\n Input Cipher text is: ")
+	//fmt.Println(rawCiphertextNew)
 
 	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
 
