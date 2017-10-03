@@ -121,7 +121,7 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 }
 
-func decryptCipher(message []byte, keyD []byte, keyM []byte){
+func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 
 	fmt.Println("\n Length of message",len(message))
 	var i int
@@ -205,9 +205,14 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 				break
 			}
 		}
-
+		
 		if tagCheck == true{
 			//output to file
+			stripMessDec := make([]byte, hex.DecodedLen(len(stripMess)))
+			hex.Decode(stripMessDec, stripMess)
+			ioutil.WriteFile(filename, stripMessDec, 0666)
+
+			
 		}
 
 		
@@ -219,8 +224,26 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 func main(){
 	
 	var i int
-	plainBuf := make([]byte, 100000)
-	mainKey := os.Args[1]
+	var mainKey string
+	var inputFile string
+	var outputFile string
+	//plainBuf := make([]byte, 100000)
+	
+	arguments := os.Args
+	for i = 0; i < len(arguments); i++{
+		if arguments[i] == "-k"{
+			mainKey = arguments[i+1]
+		}
+
+		if arguments[i] == "-i"{
+			inputFile = arguments[i+1]
+		}
+
+		if arguments[i] == "-o"{
+			outputFile = arguments[i+1]
+		}
+	}
+	
 	macKey := make([]byte, 16)
         copy(macKey[:],mainKey[16:32])
 	encKey := make([]byte, 16)
@@ -231,9 +254,12 @@ func main(){
 	hex.Encode(encKeyHex, encKey)
         fmt.Println("\nMac key is: ")
 	fmt.Println(macKey)
-	fmt.Printf("\n Hex Mac Key is: %s",macKeyHex) 
+	fmt.Printf("\n Hex Mac Key is: %s",macKeyHex)
 
-	fi, err := os.Open(os.Args[2])
+	if os.Args[1] == "encrypt"{ 
+	
+	/*
+	fi, err := os.Open(inputFile)
 	if err != nil{
 		panic(err)
 	}
@@ -249,6 +275,12 @@ func main(){
 	plainBufNew = plainBuf[0:plainBufLen]
 	fmt.Println("\nPlaintext is: ")
 	fmt.Println(plainBufNew)
+	*/
+	plainBufNew, err := ioutil.ReadFile(inputFile)
+	if err != nil{
+                panic(err)
+        }
+
 	plainBufNewHex := make([]byte, hex.EncodedLen(len(plainBufNew)))
 	hex.Encode(plainBufNewHex, plainBufNew)
 	fmt.Printf("\nHex Plaintext is: %s",plainBufNewHex)
@@ -372,15 +404,26 @@ func main(){
 		rounds -= 1
 	}
 
-	ioutil.WriteFile(os.Args[3], IVwithCipher, 0666)
+	fmt.Println("\nIV with Cipher is: ")
+	fmt.Println(IVwithCipher)
 
+	ioutil.WriteFile(outputFile, IVwithCipher, 0666)
+	}
 
 
 	///////////////////////////////////////////////////////////
 
 	// Prepare for Decrypt function
-	rawCiphertext := make([]byte, 100000)
-	fi, err = os.Open("ciphertext.txt")
+
+	if os.Args[1] == "decrypt"{
+
+	rawCiphertextNew, err := ioutil.ReadFile(inputFile)
+	if err != nil{
+                panic(err)
+        }
+ 
+	/*rawCiphertext := make([]byte, 100000)
+	fi, err := os.Open(inputFile)
 	if err != nil{
 		panic(err)
 	}
@@ -394,7 +437,12 @@ func main(){
 	rawCiphertextLen := i
 	rawCiphertextNew := make([]byte,rawCiphertextLen)
 	rawCiphertextNew = rawCiphertext[0:rawCiphertextLen]
+	*/
+	fmt.Println("\n Input Cipher text is: ")
+	fmt.Println(rawCiphertextNew)
 
-	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex)
+	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
+
+	}
 
 }
