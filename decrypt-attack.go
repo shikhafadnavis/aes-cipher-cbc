@@ -31,11 +31,13 @@ fmt.Printf("%x\n", cipherBuf)
 ioutil.WriteFile("modifiedcipher.txt", cipherBuf, 0666)
 
 
-cmd := exec.Command("./decrypt-test","modifiedcipher.txt","recovery_trial.txt")
+out, err := exec.Command("./decrypt-test","modifiedcipher.txt","recovery_trial.txt").Output()
 
-err := cmd.Run()
+if err != nil{
+	panic(err)
+}
 
-fmt.Println(err)
+fmt.Print(string(out))
 fmt.Print("\n")
 
 

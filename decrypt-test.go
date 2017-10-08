@@ -5,7 +5,7 @@ import ("os"
 //      "bytes"
         "encoding/hex"
         "fmt"
-        "errors"
+//        "errors"
         "crypto/sha256"
 //        "crypto/rand"
         "crypto/aes"
@@ -123,9 +123,8 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 }
 
-func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string) error{
+func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 	
-	errDec := errors.New("Success")
 	//fmt.Println("\n Length of message",len(message))
 	var i int
 	initVector := message[0:16]
@@ -176,8 +175,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string) er
 	//fmt.Println("\n Last Byte is: ", lastByte)
 	for i = len(decryptedMess)-1; i >= len(decryptedMess)-int(lastByte); i--{
 		if (decryptedMess[i]) != (lastByte){
-			errDec = errors.New("INVALID PADDING")
-			return  errDec
+			fmt.Println("INVALID PADDING")
 			padCheck = false
 			break
 		}
@@ -202,8 +200,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string) er
 		verifiedTag := hmacKey(keyM, stripMess)
 		for i = 0; i < len(verifiedTag); i++{
 			if verifiedTag[i] != tag[i]{
-				errDec = errors.New("INVALID MAC")
-				return errDec
+				fmt.Println("INVALID MAC")
 				tagCheck = false
 				break
 			}
@@ -212,8 +209,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string) er
 		if tagCheck == true{
 			//output to file
 			stripMessDec := make([]byte, hex.DecodedLen(len(stripMess)))
-			errDec = errors.New("Success")
-			return errDec
+			fmt.Println("SUCCESS")
 			hex.Decode(stripMessDec, stripMess)
 			ioutil.WriteFile(filename, stripMessDec, 0666)
 
@@ -223,11 +219,9 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string) er
 		
 	}	
 
-	return errDec
-
 }
 
-func main() error{
+func main(){
 	
 	//var i int
 	var mainKey string
@@ -274,7 +268,6 @@ func main() error{
 	//fmt.Println("\n Input Cipher text is: ")
 	//fmt.Println(rawCiphertextNew)
 
-	errorDec := decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
-	return errorDec
+	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
 
 }
