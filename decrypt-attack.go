@@ -31,7 +31,7 @@ fmt.Printf("%x\n", cipherBuf)
 ioutil.WriteFile("modifiedcipher.txt", cipherBuf, 0666)
 
 
-cmd := exec.Command("./encrypt-auth", "decrypt", "-k", "c48bb81a3c8d81874a433c720867ce3a8431ad5a5ef0745efb2fd61157586967", "-i", "modifiedcipher.txt", "-o", "recovery_trial.txt")
+cmd := exec.Command("./decrypt-test","modifiedcipher.txt","recovery_trial.txt")
 
 err := cmd.Run()
 
