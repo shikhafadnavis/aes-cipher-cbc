@@ -400,16 +400,16 @@ func main(){
 
 	if os.Args[1] == "decrypt"{
 
-	rawCiphertextNew, err := ioutil.ReadFile(inputFile)
-	if err != nil{
-                panic(err)
-        }
+		rawCiphertextNew, err := ioutil.ReadFile(inputFile)
+		if err != nil{
+                	panic(err)
+        	}
  
 
-	//fmt.Println("\n Input Cipher text is: ")
-	//fmt.Println(rawCiphertextNew)
+		//fmt.Println("\n Input Cipher text is: ")
+		//fmt.Println(rawCiphertextNew)
 
-	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
+		decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
 
 	}
 
