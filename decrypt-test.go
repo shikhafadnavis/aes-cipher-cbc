@@ -123,7 +123,7 @@ func hmac(hmacKey []byte, message []byte) []byte{
 
 }
 
-func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
+func decryptCipher(message []byte, keyD []byte, keyM []byte){
 	
 	//fmt.Println("\n Length of message",len(message))
 	var i int
@@ -168,7 +168,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 		rounds -=1
 	}	
 
-	//fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
 
@@ -208,10 +208,10 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 		
 		if tagCheck == true{
 			//output to file
-			stripMessDec := make([]byte, hex.DecodedLen(len(stripMess)))
+			//stripMessDec := make([]byte, hex.DecodedLen(len(stripMess)))
 			fmt.Println("SUCCESS")
-			hex.Decode(stripMessDec, stripMess)
-			ioutil.WriteFile(filename, stripMessDec, 0666)
+			//hex.Decode(stripMessDec, stripMess)
+			//ioutil.WriteFile(filename, stripMessDec, 0666)
 
 			
 		}
@@ -226,7 +226,7 @@ func main(){
 	//var i int
 	var mainKey string
 	var inputFile string
-	var outputFile string
+	//var outputFile string
 
 /*	
 	arguments := os.Args
@@ -244,9 +244,9 @@ func main(){
 		}
 	}
 */
-	mainKey = "c48bb81a3c8d81874a433c720867ce3a8431ad5a5ef0745efb2fd61157586967"
+	mainKey = "c026c8432091cabf1eab6213180ccfad3a2c75644b261e74b05b4f77526031e9"
 	inputFile = os.Args[1]
-	outputFile = os.Args[2]	
+//	outputFile = os.Args[2]	
 	macKey := make([]byte, 16)
         copy(macKey[:],mainKey[16:32])
 	encKey := make([]byte, 16)
@@ -268,6 +268,6 @@ func main(){
 	//fmt.Println("\n Input Cipher text is: ")
 	//fmt.Println(rawCiphertextNew)
 
-	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
+	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex)
 
 }

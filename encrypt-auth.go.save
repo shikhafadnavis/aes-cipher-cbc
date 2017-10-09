@@ -1,0 +1,131 @@
+package main
+
+import ("os"
+//	"bytes"
+	"encoding/hex"
+	"fmt"
+	"crypto/sha256"
+	"strings"
+)
+
+func modifiedKey(key []byte, message []byte) []byte{
+	var i int
+	var keyLen int
+	//fix first case
+	if(len(key) > len(message)){
+		fmt.Println("\nKey is longer")
+		keyNew := sha256.Sum256(key)
+		fmt.Printf("\nModified HMAC key is: %x ",keyNew)
+		fmt.Printf("%x %x",keyNew[0], keyNew[1])
+		return keyNew
+
+	}
+
+	if(len(key) < len(message)){
+		fmt.Println("\nMessage is longer")
+		numPad := len(message) - len(key)
+		padBuf := make([]byte, numPad)
+		for i = 0; i < numPad; i++{
+			padBuf[i] = 0
+		} 
+		keyNew := make([]byte, numPad+len(key))
+		for i = 0; i < len(key); i++{
+			keyNew[i] = key[i]
+		}
+		for i = 0; i < numPad; i++{
+			keyNew[i+len(key)] = padBuf[i]
+		} 
+		fmt.Println("\nModified HMAC Key is: ")
+		fmt.Printf("%s",keyNew)
+		return keyNew
+	}
+
+	ipad := strings.Repeat("36", keyLen)
+	ipadHex, err := hex.DecodeString(ipad)
+	if err != nil{
+		panic(err)
+	}
+	fmt.Println("\nValue of ipad isipad := strings.Repeat("36", keyLen)
+        ipadHex, err := hex.DecodeString(ipad)
+        if err != nil{
+                panic(err)
+        }
+        fmt.Println("\nValue of ipad is: ")
+        fmt.Printf("%x",ipadHex)
+
+        ipadKey := make([]byte, keyLen)
+        for i = 0; i < keyLen; i++{
+                ipadKey[i] = ipadHex[i] ^ keyNew[i]
+        }
+        fmt.Printf("ipadkey is: %x", ipadKey)
+        return []byte("Hello")
+: ")
+	fmt.Printf("%x",ipadHex)
+
+	ipadKey := make([]byte, keyLen)
+	for i = 0; i < keyLen; i++{
+		ipadKey[i] = ipadHex[i] ^ keyNew[i]
+	}
+	fmt.Printf("ipadkey is: %x", ipadKey)
+	return []byte("Hello")
+}
+
+func(hmacKey []byte, message []byte) []byte{
+	
+
+}
+
+func main(){
+	
+	var i int
+	plainBuf := make([]byte, 100000)
+	mainKey := os.Args[1]
+	macKey := make([]byte, 16)
+        copy(macKey[:],mainKey[16:32])
+	macKeyHex := make([]byte, 32)
+	hex.Encode(macKeyHex, macKey)
+        fmt.Println("\nMac key is: ")
+	fmt.Println(macKey)
+	fmt.Printf("\n Hex Mac Key is: %s",macKeyHex) 
+
+	fi, err := os.Open(os.Args[2])
+	if err != nil{
+		panic(err)
+	}
+	fi.Read(plainBuf)
+	//fmt.Println(len(plainBufNew))
+	for i = 0; i < len(plainBuf); i++{
+		if plainBuf[i] == 10{
+			break
+		}
+	}
+	plainBufLen := i
+	plainBufNew := make([]byte, plainBufLen)
+	plainBufNew = plainBuf[0:plainBufLen]
+	fmt.Println("\nPlaintext is: ")
+	fmt.Println(plainBufNew)
+	plainBufNewHex := make([]byte, hex.EncodedLen(len(plainBufNew)))
+	hex.Encode(plainBufNewHex, plainBufNew)
+	fmt.Printf("\nHex Plaintext is: %s",plainBufNewHex)
+
+	//Begin calculating Hash
+
+	
+	hmacKey := modifiedKey(macKeyHex, plainBufNewHex)
+	hmac(hmacKey, plainBufNewHex)
+	 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
