@@ -168,11 +168,11 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 		rounds -=1
 	}	
 
-	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+//	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
 
-	//fmt.Println("\n Last Byte is: ", lastByte)
+//	fmt.Println("\n Last Byte is: ", lastByte)
 	for i = len(decryptedMess)-1; i >= len(decryptedMess)-int(lastByte); i--{
 		if (decryptedMess[i]) != (lastByte){
 			fmt.Println("INVALID PADDING")
@@ -224,7 +224,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 func main(){
 	
 	//var i int
-	var mainKey string
+	//var mainKey string
 	var inputFile string
 	//var outputFile string
 
@@ -244,17 +244,25 @@ func main(){
 		}
 	}
 */
-	mainKey = "c026c8432091cabf1eab6213180ccfad3a2c75644b261e74b05b4f77526031e9"
+	mainKey := []byte("87c9ce14c9c3297873680029ba639619e4185466ede5fe6ab5dca9a5a092d40d")
 	inputFile = os.Args[1]
+//	fmt.Println("length of mainkey: ", len(mainKey))
 //	outputFile = os.Args[2]	
 	macKey := make([]byte, 16)
-        copy(macKey[:],mainKey[16:32])
+        //copy(macKey[:],mainKey[16:32])
+	hex.Decode(macKey,mainKey[32:64])
+//	fmt.Println("\nMacKey is: ",macKey)
 	encKey := make([]byte, 16)
-	copy(encKey[:],mainKey[0:16])
-	macKeyHex := make([]byte, 32)
+	hex.Decode(encKey,mainKey[0:32])
+	//copy(encKey[:],mainKey[0:16])
+//	fmt.Println("\n EncKey is: ",encKey)
+	/*macKeyHex := make([]byte, 32)
 	hex.Encode(macKeyHex, macKey)
 	encKeyHex := make([]byte, 32)
 	hex.Encode(encKeyHex, encKey)
+	fmt.Printf("\n EncKey is: %x",macKeyHex)
+	fmt.Printf("\n EncKey is: %x",encKeyHex)
+	*/
         //fmt.Println("\nMac key is: ")
 	//fmt.Println(macKey)
 	//fmt.Printf("\n Hex Mac Key is: %s",macKeyHex)
@@ -268,6 +276,6 @@ func main(){
 	//fmt.Println("\n Input Cipher text is: ")
 	//fmt.Println(rawCiphertextNew)
 
-	decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex)
+	decryptCipher(rawCiphertextNew, encKey, macKey)
 
 }

@@ -180,7 +180,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 		rounds -=1
 	}	
 
-	//fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
 
@@ -224,8 +224,10 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 			//output to file
 			stripMessDec := make([]byte, hex.DecodedLen(len(stripMess)))
 			hex.Decode(stripMessDec, stripMess)
-			ioutil.WriteFile(filename, stripMessDec, 0666)
-
+			errFile := ioutil.WriteFile(filename, stripMessDec, 0644)
+			if errFile!=nil{
+				panic(errFile)
+			}
 			
 		}
 
@@ -238,7 +240,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte, filename string){
 func main(){
 	
 	var i int
-	var mainKey string
+	//var mainKey string
 	var inputFile string
 	var outputFile string
 
@@ -246,7 +248,7 @@ func main(){
 	arguments := os.Args
 	for i = 0; i < len(arguments); i++{
 		if arguments[i] == "-k"{
-			mainKey = arguments[i+1]
+			//mainKey = arguments[i+1]
 		}
 
 		if arguments[i] == "-i"{
@@ -257,7 +259,7 @@ func main(){
 			outputFile = arguments[i+1]
 		}
 	}
-	
+	/*
 	macKey := make([]byte, 16)
         copy(macKey[:],mainKey[16:32])
 	encKey := make([]byte, 16)
@@ -269,7 +271,15 @@ func main(){
         //fmt.Println("\nMac key is: ")
 	//fmt.Println(macKey)
 	//fmt.Printf("\n Hex Mac Key is: %s",macKeyHex)
+*/
+	mainKey := []byte("87c9ce14c9c3297873680029ba639619e4185466ede5fe6ab5dca9a5a092d40d")
+	macKey := make([]byte, 16)
+        hex.Decode(macKey,mainKey[32:64])
+        fmt.Println("\nMacKey is: ",macKey)
+        encKey := make([]byte, 16)
+        hex.Decode(encKey,mainKey[0:32])
 
+	
 	if os.Args[1] == "encrypt"{ 
 	
 	plainBufNew, err := ioutil.ReadFile(inputFile)
@@ -283,7 +293,7 @@ func main(){
 
 	// Begin calculating Hash
 
-	hmacTag := hmacKey(macKeyHex, plainBufNewHex)
+	hmacTag := hmacKey(macKey, plainBufNewHex)
 	//fmt.Println("\nHMAC Tag is:", hmacTag)
 	 
 	// Begin Encryption here
@@ -342,7 +352,7 @@ func main(){
 		completeMess[i+ hashedMessLen] = padding[i]
 	}
 
-	//fmt.Printf("\nComplete Message is: %x", completeMess)
+	fmt.Printf("\nComplete Message is: %x", completeMess)
 	
 	// Generating IV
 	
@@ -354,7 +364,7 @@ func main(){
 	finalBlock := make([]byte, 16)
 	cipherBlock := make([]byte, 16)
 
-	cipherEncrypt, err := aes.NewCipher(encKeyHex)
+	cipherEncrypt, err := aes.NewCipher(encKey)
 	if err != nil{
 		panic (err)
 	}
@@ -409,7 +419,7 @@ func main(){
 		//fmt.Println("\n Input Cipher text is: ")
 		//fmt.Println(rawCiphertextNew)
 
-		decryptCipher(rawCiphertextNew, encKeyHex, macKeyHex, outputFile)
+		decryptCipher(rawCiphertextNew, encKey, macKey, outputFile)
 
 	}
 
