@@ -20,10 +20,13 @@ func main(){
 filename := os.Args[2]
 var i int
 var j int
+var k int
 var x int
 intermediateBlock := make([]byte, 16)
 plainBlock := make([]byte, 16)
 var z1 int
+var errOrig error
+var counter int
 //var z2 int
 
 
@@ -35,6 +38,9 @@ cipherBufCopy := cipherBuf
 
 fmt.Printf("\nOriginal Cipher text: %x", cipherBuf)
 cipherBufLen := len(cipherBuf)
+cipherBufOrig := make([]byte, cipherBufLen)
+completePlain := make([]byte, cipherBufLen-16) // To reduce the 16 bytes of IV
+index := len(completePlain)
 fmt.Println("\n Length of original Ciphertext is: ", cipherBufLen)
 
 
@@ -43,6 +49,9 @@ fmt.Println("\n Length of original Ciphertext is: ", cipherBufLen)
 //rand.Read(cipherBufCopy[cipherBufLen-32:cipherBufLen-17])
 //fmt.Printf("\n%x", cipherBufCopy)
 //fmt.Printf("\n After these changes, the original buffer is: %x", cipherBuf )
+
+for k = 0; k < 106; k++{
+
 for j = 0; j < 16; j++{
 
 	//Set previous bytes for the right padding
@@ -65,7 +74,8 @@ for j = 0; j < 16; j++{
 		}
 		//fmt.Printf("%s",out)
 	
-		if string(out[len(out)-2]) == "C" || string(out[len(out)-2]) == "S"{
+//		if string(out[len(out)-2]) == "C" || string(out[len(out)-2]) == "S"{
+		if string(out) == "INVALID MAC\n" || string(out) == "SUCCESS\n"{
 			fmt.Println(string(out))
 			fmt.Println("\nAttack Byte Found")
 			z1 = i
@@ -74,14 +84,14 @@ for j = 0; j < 16; j++{
 
 	//	fmt.Println("\n", string(out))
 
-	}
+	} // End of For 0-255
 
 
 	//fmt.Printf("\nModeified Ciphertext is: %x", cipherBufCopy)
 
 	fmt.Println("\n Value of modifiedbyte in Cipher is: ", z1)
 
-	cipherBufOrig, errOrig := ioutil.ReadFile(filename)
+	cipherBufOrig, errOrig = ioutil.ReadFile(filename)
 	if errOrig!=nil{
 		panic(errOrig)
 	}
@@ -91,14 +101,33 @@ for j = 0; j < 16; j++{
 	// Calculating Real Plaintext Byte
 
 	intermediateBlock[15-j] = byte(z1) ^ byte(j+1)
-	fmt.Printf("\nintermediate byte is%x", intermediateBlock[15-j])
+	fmt.Printf("\nintermediate byte is: %x", intermediateBlock[15-j])
 	plainBlock[15-j] = intermediateBlock[15-j] ^ cipherBufOrig[cipherBufLen-17-j]
 
 	fmt.Printf("\nPlainblock this byte is: %x", plainBlock[15-j])
 
-}
+} // End of for 0-16
 
 fmt.Printf("Plain block is: %x", plainBlock)
+//Copy this block to completePlain
+p:=0
+for counter = index-16; counter < index; counter++{
+	completePlain[counter] = plainBlock[p]
+	p++
+} 
+
+index -= 16
+
+cipherBufCopy = make([]byte, cipherBufLen-16)
+cipherBufLen = len(cipherBufCopy)
+cipherBufCopy = cipherBufOrig[0:cipherBufLen]
+//fmt.Printf("\n Remaining Length is: %d", cipherBufLen)
+//fmt.Printf("\n Remaining CipherBuf is: %x", cipherBufCopy)
+
+
+} //End of For 0-number of blocks
+
+fmt.Printf("\nCompleteplaintext so far is %x", completePlain)
 
 
 
