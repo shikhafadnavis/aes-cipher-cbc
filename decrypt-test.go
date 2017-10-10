@@ -133,6 +133,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 	//fmt.Println("\n")
 	//fmt.Println(len(initVector))
 	//fmt.Println(len(realMessage))
+	//fmt.Printf("\n the real ciphertext passed is: %x", realMessage)
 	decryptedMess := make([]byte, len(realMessage))
 
 	rounds := len(realMessage)/16
@@ -168,9 +169,16 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 		rounds -=1
 	}	
 
-//	fmt.Printf("Complete Decrypted Message is: %x", decryptedMess)
+//	fmt.Printf("\nComplete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
+	//Return INVALID PADDING for 00
+
+	if lastByte == byte(00){
+		fmt.Println("INVALID PADDING")
+		padCheck = false
+		
+	}
 
 //	fmt.Println("\n Last Byte is: ", lastByte)
 	for i = len(decryptedMess)-1; i >= len(decryptedMess)-int(lastByte); i--{
@@ -180,6 +188,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 			break
 		}
 	}
+
 	decryptedMessNoPad := make([]byte, len(decryptedMess)-int(lastByte))
 	if padCheck == true{
 		decryptedMessNoPad = decryptedMess[0: len(decryptedMess)-int(lastByte)]
