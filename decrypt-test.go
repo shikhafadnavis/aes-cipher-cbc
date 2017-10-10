@@ -169,7 +169,7 @@ func decryptCipher(message []byte, keyD []byte, keyM []byte){
 		rounds -=1
 	}	
 
-//	fmt.Printf("\nComplete Decrypted Message is: %x", decryptedMess)
+	fmt.Printf("\nComplete Decrypted Message is: %x", decryptedMess)
 	padCheck := true
 	lastByte := decryptedMess[len(decryptedMess)-1]
 	//Return INVALID PADDING for 00
