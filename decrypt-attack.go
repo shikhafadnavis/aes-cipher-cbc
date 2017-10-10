@@ -20,7 +20,7 @@ func main(){
 filename := os.Args[2]
 var i int
 var z1 int
-//var z2 int
+var z2 int
 
 
 cipherBuf, errRead := ioutil.ReadFile(filename)
@@ -93,14 +93,14 @@ fmt.Println("\n", plainByte)
 
 ////////////////////////////////////////// For the next byte
 
-/*
-intermediateByte = byte(0x4b)
+
+
 cipherLast := intermediateByte ^ byte(0x02)
-fmt.Println("\nCipherLast is: ", cipherLast)
+fmt.Println("\nCipherLast is: ",byte(cipherLast))
 cipherBufCopy[cipherBufLen-17] = cipherLast
-rand.Read(cipherBufCopy[cipherBufLen-32:cipherBufLen-18])
-fmt.Printf("\nCurrently, ciphertext is: %x", cipherBufCopy)
-for i = 0; i < 2; i++{
+//rand.Read(cipherBufCopy[cipherBufLen-32:cipherBufLen-18])
+//fmt.Printf("\nCurrently, ciphertext is: %x", cipherBufCopy)
+for i = 0; i < 256; i++{
         //rand.Read(cipherBufCopy[cipherBufLen-32:cipherBufLen-17])
         cipherBufCopy[cipherBufLen-18] = byte(i) //^ cipherBufCopy[cipherBufLen-17] ^ byte(0x01)
         //fmt.Printf("\n NewcipherBuf is: %x", newCipherBuf)
@@ -110,7 +110,7 @@ for i = 0; i < 2; i++{
                 k++
         }*/
         //fmt.Println("\nModeified Ciphertext is: ", cipherBufCopy)
-/*
+
         ioutil.WriteFile("modifynew.txt", cipherBufCopy, 0666)
 
         out, err := exec.Command("./decrypt-test","modifynew.txt").Output()
@@ -120,7 +120,7 @@ for i = 0; i < 2; i++{
         }
         //fmt.Printf("%s",out)
 
-        if string(out)!="INVALID PADDING\n"{
+        if string(out)=="INVALID MAC\n"{
                 fmt.Println(string(out))
                 fmt.Println("\nSuccess")
                 z2 = i
@@ -134,7 +134,7 @@ for i = 0; i < 2; i++{
 
 fmt.Println("\n z2 is:", z2)
 
-*/
+
 
 } 
 
