@@ -254,7 +254,7 @@ func main(){
 	}
 */
 	mainKey := []byte("87c9ce14c9c3297873680029ba639619e4185466ede5fe6ab5dca9a5a092d40d")
-	inputFile = os.Args[1]
+	inputFile = os.Args[2]
 //	fmt.Println("length of mainkey: ", len(mainKey))
 //	outputFile = os.Args[2]	
 	macKey := make([]byte, 16)
