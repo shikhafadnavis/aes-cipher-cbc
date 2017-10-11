@@ -1,16 +1,2 @@
-WCCP V2.0 defines mechanisms to allow one or more routers enabled for
-   transparent redirection to discover, verify, and advertise
-   connectivity to one or more web-caches.
+WCCP V2.0 defines mechanisms to allow one or more routers enabled for transparent redirection to discover my name is shikha fadnavis. I study cybersecurity at Hopkins. I hope it works this time 
 
-   Having established connectivity the routers and web-caches form
-   Service Groups to handle the redirection of traffic whose
-   characteristics are part of the Service Group definition.
-
-   The protocol provides the means to negotiate the specific method
-   used for load distribution among web-caches and also the method used
-   to transport traffic between router and cache.
-
-   A single web-cache within a Service Group is elected as the designated
-   web-cache. It is the responsibility of the designated web-cache to
-   provide routers with the data which determines how redirected traffic
-   is distributed between the web-caches in the Service Group.
